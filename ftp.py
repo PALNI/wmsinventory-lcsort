@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+import os
+import ftplib
+import sys
+import callnumber
+import csv
+import re
+import operator
+import shutil
+import datetime
+from datetime import timedelta
+
+#get configuration file with FTP credentials
+import config
+
+#Open ftp connection
+ftp = ftplib.FTP(config.domain, config.username, config.password)
+
+#navigate to the reports directory
+ftp.cwd("/wms/reports")
+#Define yesterday
+yesterday = datetime.date.today() - timedelta(days=1)
+#date = datetime.date.today()
+#today = yesterday.strftime('%Y%m%d')
+
+#For production, uncomment line below to get yesterday's file
+#filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt', 'r')
+
+#For testing, uncomment line below to get specific file
+filematch = config.symbol + '.Item_Inventories.20150719.txt'
+
+#Retrieve the files
+for filename in ftp.nlst(filematch):
+  fhandle = open(filename, 'wb')
+  print 'Getting ' + filename
+  ftp.retrbinary('RETR ' + filename, fhandle.write)
+  fhandle.close()
+#Close the FTP Connection
+ftp.quit()
+
+#Open the most recent file
+#for production uncomment line below
+#mostrecent = open(config.symbol + '.Item_Inventories.' + yesterday + '.txt', 'r')
+#for testing uncomment line below
+mostrecent = open(config.symbol + '.Item_Inventories.20150719.txt', 'r')
+
+#read the inventory file  
+csv1 = csv.reader(mostrecent, delimiter='|')
+
+#write normalized call numbers to a temp file
+csv_out = csv.writer(open('temp.txt', 'w'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+
+#define row elements and ignore withdrawn
+for row in csv1:
+  call = row[5]
+  location = row[2]
+  title = row[7]
+  author = row[6]
+  barcode = row[12]
+  status = row[16]
+  if status != 'WITHDRAWN':
+    lcmatch = re.compile('[A-Z]{1,3}\d')
+    if lcmatch.match(call):
+      testcall = callnumber.normalize(call)
+      sortcall =  testcall
+      if sortcall == None:
+        csv_out.writerow([call,call,title,author,barcode,location])
+      else:
+        csv_out.writerow([sortcall,call,title,author,barcode,location])
+    else:
+      csv_out.writerow([call,call,title,author,barcode,location])
+
+#read temp file and write to sorted file    
+csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'wb'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+csv2_out.writerow(['Call Number', 'Title', 'Author','Barcode','Location'])
+data = csv.reader(open('temp.txt'),delimiter='\t')
+
+sortedlist = sorted(data, key=operator.itemgetter(0))
+
+for row in sortedlist:
+
+  sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = ''
+  if len(row) > 3:
+    if row[0] is not None:
+      sortednormal = row[0]
+  
+    if row[1] is not None:
+      sortedcall = row[1]
+  
+    if row[2] is not None:
+      sortedtitle = row[2]
+ 
+    if row[3] is not None:
+      sortedauthor = row[3]
+    else: 
+      sortedauthor = ''
+
+    if row[4] is not None:
+      sortedbarcode = row[4]
+    else: 
+      sortedbarcode = ''
+ 
+    if row[5] is not None:
+     sortedlocation = row[5]
+    else: 
+      sortedlocation = ''
+  
+  elif len(row) < 3:
+    if row[0] is not None:
+      sortednormal = row[0]
+
+    if row[1] is not None:
+      sortedcall = row[1]
+
+    if row[2] is not None:
+      sortedtitle = row[2]
+
+  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
+
+# Remove the temp file
+os.remove('temp.txt')
+
+#copy files to a web directory
+shutil.copy2(filematch, config.destination)
+shutil.copy2('sorted' + str(yesterday) + '.txt', config.destination)

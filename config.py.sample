@@ -1,0 +1,11 @@
+#add FTP directory credentials below
+domain = ""
+username = ""
+password = ""
+
+#User retrieval file destination (e.g., a web directory)
+destination = ""
+
+#OCLC Symbol
+symbol = ""
+
