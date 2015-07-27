@@ -63,11 +63,12 @@ for row in csv1:
   if temploc != '---':
     location = temploc
   if description != '---':
+    #volletters = re.search(r'\w+\.', description)
     volno = re.search(r'\d+', description)
     if volno is not None:
       volno = volno.group()
       volsort = volno.rjust(3, '0') 
-      volume = 'vol. ' + volsort
+      volume = volsort
     else:
       volume = ''
   if status != 'WITHDRAWN':
