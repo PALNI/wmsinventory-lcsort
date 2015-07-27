@@ -27,7 +27,7 @@ yesterday = datetime.date.today() - timedelta(days=1)
 #filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt', 'r')
 
 #For testing, uncomment line below to get specific file
-filematch = config.symbol + '.Item_Inventories.20150719.txt'
+filematch = config.symbol + '.Item_Inventories.20150726.txt'
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -42,7 +42,7 @@ ftp.quit()
 #for production uncomment line below
 #mostrecent = open(config.symbol + '.Item_Inventories.' + yesterday + '.txt', 'r')
 #for testing uncomment line below
-mostrecent = open(config.symbol + '.Item_Inventories.20150719.txt', 'r')
+mostrecent = open(config.symbol + '.Item_Inventories.20150726.txt', 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|')
@@ -54,21 +54,29 @@ csv_out = csv.writer(open('temp.txt', 'w'), delimiter = '\t', quotechar = '"', q
 for row in csv1:
   call = row[5]
   location = row[2]
+  temploc = row[3]
   title = row[7]
   author = row[6]
   barcode = row[12]
   status = row[16]
+  description = row[8]
+  if temploc != '---':
+    location = temploc
+  if description != '---':
+    volume = description
+  else: 
+    description = ''
   if status != 'WITHDRAWN':
     lcmatch = re.compile('[A-Z]{1,3}\d')
     if lcmatch.match(call):
       testcall = callnumber.normalize(call)
       sortcall =  testcall
       if sortcall == None:
-        csv_out.writerow([call,call,title,author,barcode,location])
+       csv_out.writerow([call + ' ' + volume,call + ' ' + volume,title,author,barcode,location])
       else:
-        csv_out.writerow([sortcall,call,title,author,barcode,location])
+       csv_out.writerow([sortcall + ' ' + volume,call + ' ' + volume,title,author,barcode,location])  
     else:
-      csv_out.writerow([call,call,title,author,barcode,location])
+      csv_out.writerow([call +' ' + volume,call + ' ' + volume,title,author,barcode,location])
 
 #read temp file and write to sorted file    
 csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'wb'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
@@ -81,6 +89,26 @@ for row in sortedlist:
 
   sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = ''
   if len(row) > 3:
+    if row[0] is not None:
+      sortednormal = row[0]
+
+    if row[1] is not None:
+      sortedcall = row[1]
+
+    if row[2] is not None:
+      sortedtitle = row[2]
+
+    if row[3] is not None:
+      sortedauthor = row[3]
+    else:
+      sortedauthor = ''
+
+    if row[4] is not None:
+      sortedbarcode = row[4]
+    else:
+      sortedbarcode = ''
+  
+  elif len(row) > 4:
     if row[0] is not None:
       sortednormal = row[0]
   
@@ -105,6 +133,12 @@ for row in sortedlist:
     else: 
       sortedlocation = ''
   
+  elif len(row) < 2:
+    if row[0] is not None:
+      sortednormal = row[0]
+    if row[1] is not None:
+      sortedcall = row[1]
+
   elif len(row) < 3:
     if row[0] is not None:
       sortednormal = row[0]
