@@ -63,9 +63,13 @@ for row in csv1:
   if temploc != '---':
     location = temploc
   if description != '---':
-    volume = description
-  else: 
-    description = ''
+    volno = re.search(r'\d+', description)
+    if volno is not None:
+      volno = volno.group()
+      volsort = volno.rjust(3, '0') 
+      volume = 'vol. ' + volsort
+    else:
+      volume = ''
   if status != 'WITHDRAWN':
     lcmatch = re.compile('[A-Z]{1,3}\d')
     if lcmatch.match(call):
@@ -133,13 +137,14 @@ for row in sortedlist:
     else: 
       sortedlocation = ''
   
-  elif len(row) < 2:
+  elif len(row) < 3:
     if row[0] is not None:
       sortednormal = row[0]
+    
     if row[1] is not None:
       sortedcall = row[1]
 
-  elif len(row) < 3:
+  elif len(row) < 4:
     if row[0] is not None:
       sortednormal = row[0]
 
