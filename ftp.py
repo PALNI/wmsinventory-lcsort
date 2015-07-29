@@ -63,25 +63,36 @@ for row in csv1:
   if temploc != '---':
     location = temploc
   if description != '---':
-    #volletters = re.search(r'\w+\.', description)
-    volno = re.search(r'\d+', description)
-    if volno is not None:
-      volno = volno.group()
-      volsort = volno.rjust(3, '0') 
-      volume = volsort
-    else:
-      volume = ''
+    call = call + ' ' + description
+  #if description.find('v')!= -1:
+    #volno = description.split('v.')
+    #if volno[1] is not None:
+      #volsort = volno[1].rjust(3, '0') 
+      #volume = 'V' + volsort
+    #else: 
+      #volume = 'novfound'
+  #else:
+    #volume = 'no find' + description   
   if status != 'WITHDRAWN':
     lcmatch = re.compile('[A-Z]{1,3}\d')
     if lcmatch.match(call):
-      testcall = callnumber.normalize(call)
-      sortcall =  testcall
+      sortcall = callnumber.normalize(call)
       if sortcall == None:
-       csv_out.writerow([call + ' ' + volume,call + ' ' + volume,title,author,barcode,location])
+        csv_out.writerow([call,call,title,author,barcode,location])
+      elif call.find('v.') != -1:
+        if sortcall.find('V') == -1:
+         sortedsplit = call.split('v.')
+         vcallsortnum = sortedsplit[1].rjust(3, '0')
+         sortcall = sortcall + ' V' + vcallsortnum
+        elif sortcall.find('V') != -1:
+          sortedsplit = sortcall.split('V')
+          vcallsortnum = sortedsplit[1].rjust(3, '0')
+          sortcall = sortedsplit[0] + 'V' + vcallsortnum
+        csv_out.writerow([sortcall,call,title,author,barcode,location])
       else:
-       csv_out.writerow([sortcall + ' ' + volume,call + ' ' + volume,title,author,barcode,location])  
+       csv_out.writerow([sortcall,call,title,author,barcode,location])
     else:
-      csv_out.writerow([call +' ' + volume,call + ' ' + volume,title,author,barcode,location])
+      csv_out.writerow([call,call,title,author,barcode,location])
 
 #read temp file and write to sorted file    
 csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'wb'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
@@ -93,7 +104,7 @@ sortedlist = sorted(data, key=operator.itemgetter(0))
 for row in sortedlist:
 
   sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = ''
-  if len(row) > 3:
+  if len(row) > 5:
     if row[0] is not None:
       sortednormal = row[0]
 
@@ -112,6 +123,11 @@ for row in sortedlist:
       sortedbarcode = row[4]
     else:
       sortedbarcode = ''
+
+    if row[5] is not None:
+      sortedlocation = row[5]
+    else:
+      sortedlocation = '' 
   
   elif len(row) > 4:
     if row[0] is not None:
@@ -133,11 +149,10 @@ for row in sortedlist:
     else: 
       sortedbarcode = ''
  
-    if row[5] is not None:
-     sortedlocation = row[5]
-    else: 
-      sortedlocation = ''
-  
+  elif len(row) < 2:
+    if row[0] is not None:
+      sortednormal = row[0]
+
   elif len(row) < 3:
     if row[0] is not None:
       sortednormal = row[0]
@@ -155,7 +170,7 @@ for row in sortedlist:
     if row[2] is not None:
       sortedtitle = row[2]
 
-  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
+  csv2_out.writerow([sortednormal,sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
 
 # Remove the temp file
 os.remove('temp.txt')
