@@ -170,7 +170,7 @@ for row in sortedlist:
     if row[2] is not None:
       sortedtitle = row[2]
 
-  csv2_out.writerow([sortednormal,sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
+  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
 
 # Remove the temp file
 os.remove('temp.txt')
