@@ -21,10 +21,10 @@ ftp.cwd("/wms/reports")
 #Define yesterday
 yesterday = datetime.date.today() - timedelta(days=1)
 #date = datetime.date.today()
-#today = yesterday.strftime('%Y%m%d')
+yesterday = yesterday.strftime('%Y%m%d')
 
 #For production, uncomment line below to get yesterday's file
-filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt', 'r')
+filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
 
 #For testing, uncomment line below to get specific file
 #filematch = config.symbol + '.Item_Inventories.20150726.txt'
@@ -40,7 +40,7 @@ ftp.quit()
 
 #Open the most recent file
 #for production uncomment line below
-mostrecent = open(config.symbol + '.Item_Inventories.' + yesterday + '.txt', 'r')
+mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
 #for testing uncomment line below
 #mostrecent = open(config.symbol + '.Item_Inventories.20150726.txt', 'r')
 
