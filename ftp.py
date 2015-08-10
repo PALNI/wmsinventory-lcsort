@@ -45,7 +45,7 @@ mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt'
 #mostrecent = open(config.symbol + '.Item_Inventories.20150726.txt', 'r')
 
 #read the inventory file  
-csv1 = csv.reader(mostrecent, delimiter='|')
+csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
 
 #write normalized call numbers to a temp file
 csv_out = csv.writer(open('temp.txt', 'w'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
