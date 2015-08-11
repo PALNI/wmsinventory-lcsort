@@ -9,6 +9,11 @@ import operator
 import shutil
 import datetime
 from datetime import timedelta
+import smtplib
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEBase import MIMEBase
+from email.mime.text import MIMEText
+from email import Encoders
 
 #get configuration file with FTP credentials
 import config
@@ -27,7 +32,7 @@ yesterday = yesterday.strftime('%Y%m%d')
 filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
 
 #For testing, uncomment line below to get specific file
-#filematch = config.symbol + '.Item_Inventories.20150726.txt'
+#filematch = config.symbol + '.Item_Inventories.20150809.txt'
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -42,7 +47,7 @@ ftp.quit()
 #for production uncomment line below
 mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
 #for testing uncomment line below
-#mostrecent = open(config.symbol + '.Item_Inventories.20150726.txt', 'r')
+#mostrecent = open(config.symbol + '.Item_Inventories.20150809.txt', 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -63,16 +68,7 @@ for row in csv1:
   if temploc != '---':
     location = temploc
   if description != '---':
-    call = call + ' ' + description
-  #if description.find('v')!= -1:
-    #volno = description.split('v.')
-    #if volno[1] is not None:
-      #volsort = volno[1].rjust(3, '0') 
-      #volume = 'V' + volsort
-    #else: 
-      #volume = 'novfound'
-  #else:
-    #volume = 'no find' + description   
+    call = call + ' ' + description   
   if status != 'WITHDRAWN':
     lcmatch = re.compile('[A-Z]{1,3}\d')
     if lcmatch.match(call):
@@ -178,3 +174,24 @@ os.remove('temp.txt')
 #copy files to a web directory
 shutil.copy2(filematch, config.destination)
 shutil.copy2('sorted' + str(yesterday) + '.txt', config.destination)
+
+#email the sorted file to library contact
+msg = MIMEMultipart()
+msg['Subject'] = config.SUBJECT
+msg['From'] = config.EMAIL_FROM
+msg['To'] = config.EMAIL_TO
+
+part = MIMEBase('application', "octet-stream")
+part.set_payload(open('sorted' + str(yesterday) + '.txt', "rb").read())
+Encoders.encode_base64(part)
+
+part.add_header('Content-Disposition', 'attachment; filename="sorted20150808.txt"')
+
+msg.attach(part)
+
+server = smtplib.SMTP(config.EMAIL_SERVER)
+server.ehlo()
+server.starttls()
+server.login(config.EMAIL_FROM, config.SMTP_PASS)
+server.sendmail(config.EMAIL_FROM, config.EMAIL_RECIP, msg.as_string())
+server.quit()

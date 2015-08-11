@@ -9,3 +9,10 @@ destination = ""
 #OCLC Symbol
 symbol = ""
 
+#Email Delivery Settings
+SUBJECT  = ""
+EMAIL_FROM = ""
+EMAIL_TO = ""
+EMAIL_RECIP = [""]
+EMAIL_SERVER = ""
+SMTP_PASS = ""
