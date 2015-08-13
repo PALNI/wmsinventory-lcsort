@@ -29,10 +29,10 @@ yesterday = datetime.date.today() - timedelta(days=1)
 yesterday = yesterday.strftime('%Y%m%d')
 
 #For production, uncomment line below to get yesterday's file
-filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
+#filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
 
 #For testing, uncomment line below to get specific file
-#filematch = config.symbol + '.Item_Inventories.20150809.txt'
+filematch = config.symbol + '.Item_Inventories.20150809.txt'
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -45,9 +45,9 @@ ftp.quit()
 
 #Open the most recent file
 #for production uncomment line below
-mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
+#mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
 #for testing uncomment line below
-#mostrecent = open(config.symbol + '.Item_Inventories.20150809.txt', 'r')
+mostrecent = open(config.symbol + '.Item_Inventories.20150809.txt', 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -71,6 +71,7 @@ for row in csv1:
     call = call + ' ' + description   
   if status != 'WITHDRAWN':
     lcmatch = re.compile('[A-Z]{1,3}\d')
+    deweymatch = re.compile('\d*\.\d*')
     if lcmatch.match(call):
       sortcall = callnumber.normalize(call)
       if sortcall == None:
@@ -87,8 +88,15 @@ for row in csv1:
         csv_out.writerow([sortcall,call,title,author,barcode,location])
       else:
        csv_out.writerow([sortcall,call,title,author,barcode,location])
-    else:
+    elif deweymatch.match(call):
       csv_out.writerow([call,call,title,author,barcode,location])
+    else:
+      accession = re.split('(\d+)', call)
+      if len(accession) > 1:
+        padded = accession[1].rjust(5, '0') 
+        csv_out.writerow([accession[0] + padded,call,title,author,barcode,location])
+      else:
+        csv_out.writerow([call,call,title,author,barcode,location])
 
 #read temp file and write to sorted file    
 csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'wb'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
