@@ -29,10 +29,10 @@ yesterday = datetime.date.today() - timedelta(days=1)
 yesterday = yesterday.strftime('%Y%m%d')
 
 #For production, uncomment line below to get yesterday's file
-#filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
+filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
 
 #For testing, uncomment line below to get specific file
-filematch = config.symbol + '.Item_Inventories.20150809.txt'
+#filematch = config.symbol + '.Item_Inventories.20150809.txt'
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -45,9 +45,9 @@ ftp.quit()
 
 #Open the most recent file
 #for production uncomment line below
-#mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
+mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
 #for testing uncomment line below
-mostrecent = open(config.symbol + '.Item_Inventories.20150809.txt', 'r')
+#mostrecent = open(config.symbol + '.Item_Inventories.20150809.txt', 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -68,31 +68,49 @@ for row in csv1:
   if temploc != '---':
     location = temploc
   if description != '---':
-    call = call + ' ' + description   
+    call = call + ' ' + description
+    call2 = call + ' ' + description   
   if status != 'WITHDRAWN':
     lcmatch = re.compile('[A-Z]{1,3}\d')
     deweymatch = re.compile('\d*\.\d*')
     if lcmatch.match(call):
-      sortcall = callnumber.normalize(call)
+      call2 = call.replace('-','v')  
+      sortcall = callnumber.normalize(call2)
       if sortcall == None:
         csv_out.writerow([call,call,title,author,barcode,location])
+      #else:
+       # if sortcall.find('PT') != -1:
+         # partsplit = sortcall.split('PT')
+         # partsplitnum = partsplit[1].rjust(3, '0')
+         # sortcall = partsplit[0] + 'PTmagnuson' + partsplitnum
       elif call.find('v.') != -1:
+        #if v. and no normalized V
         if sortcall.find('V') == -1:
-         sortedsplit = call.split('v.')
-         vcallsortnum = sortedsplit[1].rjust(3, '0')
-         sortcall = sortcall + ' V' + vcallsortnum
+          sortedsplit = call.split('v.')
+          vcallsortnum = sortedsplit[1].rjust(3, '0')
+          sortcall = sortcall + ' V' + vcallsortnum
+      #else if v. and normalized V 
         elif sortcall.find('V') != -1:
           sortedsplit = sortcall.split('V')
           vcallsortnum = sortedsplit[1].rjust(3, '0')
-          sortcall = sortedsplit[0] + 'V' + vcallsortnum
-        csv_out.writerow([sortcall,call,title,author,barcode,location])
-      else:
-       csv_out.writerow([sortcall,call,title,author,barcode,location])
+          if len(sortedsplit) > 2:
+            vcallsortnum2 = sortedsplit[2].rjust(3,'0')
+            sortcall = sortedsplit[0] + " " + vcallsortnum + " " + vcallsortnum2
+            csv_out.writerow([sortcall,call,title,author,barcode,location])
+          else:
+            sortcall = sortedsplit[0] + 'V' + vcallsortnum
+            csv_out.writerow([sortcall,call,title,author,barcode,location])
+        else:
+          csv_out.writerow([sortcall,call,title,author,barcode,location])
     elif deweymatch.match(call):
       csv_out.writerow([call,call,title,author,barcode,location])
     else:
       accession = re.split('(\d+)', call)
-      if len(accession) > 1:
+      if len(accession) > 3:
+        padded = accession[1].rjust(5,'0')
+        padded2 = accession[3].rjust(5,'0')
+        csv_out.writerow([accession[0] + padded + accession[2] + padded2,call,title,author,barcode,location])
+      elif len(accession) > 2:
         padded = accession[1].rjust(5, '0') 
         csv_out.writerow([accession[0] + padded,call,title,author,barcode,location])
       else:
@@ -174,7 +192,7 @@ for row in sortedlist:
     if row[2] is not None:
       sortedtitle = row[2]
 
-  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
+  csv2_out.writerow([sortednormal,sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
 
 # Remove the temp file
 os.remove('temp.txt')
