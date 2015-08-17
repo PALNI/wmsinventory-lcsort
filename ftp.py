@@ -78,30 +78,32 @@ for row in csv1:
       sortcall = callnumber.normalize(call2)
       if sortcall == None:
         csv_out.writerow([call,call,title,author,barcode,location])
-      #else:
-       # if sortcall.find('PT') != -1:
-         # partsplit = sortcall.split('PT')
-         # partsplitnum = partsplit[1].rjust(3, '0')
-         # sortcall = partsplit[0] + 'PTmagnuson' + partsplitnum
-      elif call.find('v.') != -1:
-        #if v. and no normalized V
-        if sortcall.find('V') == -1:
-          sortedsplit = call.split('v.')
-          vcallsortnum = sortedsplit[1].rjust(3, '0')
-          sortcall = sortcall + ' V' + vcallsortnum
-      #else if v. and normalized V 
-        elif sortcall.find('V') != -1:
-          sortedsplit = sortcall.split('V')
-          vcallsortnum = sortedsplit[1].rjust(3, '0')
-          if len(sortedsplit) > 2:
-            vcallsortnum2 = sortedsplit[2].rjust(3,'0')
-            sortcall = sortedsplit[0] + " " + vcallsortnum + " " + vcallsortnum2
-            csv_out.writerow([sortcall,call,title,author,barcode,location])
-          else:
-            sortcall = sortedsplit[0] + 'V' + vcallsortnum
-            csv_out.writerow([sortcall,call,title,author,barcode,location])
-        else:
-          csv_out.writerow([sortcall,call,title,author,barcode,location])
+      else:
+        if sortcall.find('PT') != -1:
+          partsplit = sortcall.split('PT')
+          partsplitnum = partsplit[1].rjust(3, '0')
+          sortcall = partsplit[0] + 'PT' + partsplitnum
+        if call.find('v.') != -1:
+          #if v. and no normalized V
+           if sortcall.find('V') == -1:
+             sortedsplit = call.split('v.')
+             vcallsortnum = sortedsplit[1].rjust(3, '0')
+             sortcall = sortcall + ' V' + vcallsortnum
+             #csv_out.writerow([sortcall,call,title,author,barcode,location]) 
+           #else if v. and normalized V 
+           elif sortcall.find('V') != -1:
+             sortedsplit = sortcall.split('V')
+             vcallsortnum = sortedsplit[1].rjust(3, '0')
+             if len(sortedsplit) > 2:
+               vcallsortnum2 = sortedsplit[2].rjust(3,'0')
+               sortcall = sortedsplit[0] + 'V' + vcallsortnum + 'V' + vcallsortnum2
+               #csv_out.writerow([sortcall,call,title,author,barcode,location])
+             else:
+               sortcall = sortedsplit[0] + 'V' + vcallsortnum
+               #csv_out.writerow([sortcall,call,title,author,barcode,location])
+           #else:
+             #csv_out.writerow([sortcall,call,title,author,barcode,location])
+        csv_out.writerow([sortcall,call,title,author,barcode,location])
     elif deweymatch.match(call):
       csv_out.writerow([call,call,title,author,barcode,location])
     else:
@@ -192,7 +194,7 @@ for row in sortedlist:
     if row[2] is not None:
       sortedtitle = row[2]
 
-  csv2_out.writerow([sortednormal,sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
+  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
 
 # Remove the temp file
 os.remove('temp.txt')
