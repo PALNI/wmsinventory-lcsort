@@ -208,8 +208,6 @@ shutil.copy2('sorted' + str(yesterday) + '.txt', config.destination)
 zf = zipfile.ZipFile('sorted.zip', "w", zipfile.ZIP_DEFLATED)
 zf.write('sorted' + str(yesterday) + '.txt')
 zf.close()
-#with zipfile ('sorted.zip', 'w') as myzip:
- # myzip.write('sorted' + str(yesterday) + '.txt')
 
 #email the sorted file to library contact
 msg = MIMEMultipart()
