@@ -9,6 +9,7 @@ import operator
 import shutil
 import datetime
 from datetime import timedelta
+import zipfile
 import smtplib
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEBase import MIMEBase
@@ -203,17 +204,26 @@ os.remove('temp.txt')
 shutil.copy2(filematch, config.destination)
 shutil.copy2('sorted' + str(yesterday) + '.txt', config.destination)
 
+#Zip the file
+zf = zipfile.ZipFile('sorted.zip', "w", zipfile.ZIP_DEFLATED)
+zf.write('sorted' + str(yesterday) + '.txt')
+zf.close()
+#with zipfile ('sorted.zip', 'w') as myzip:
+ # myzip.write('sorted' + str(yesterday) + '.txt')
+
 #email the sorted file to library contact
 msg = MIMEMultipart()
 msg['Subject'] = config.SUBJECT
 msg['From'] = config.EMAIL_FROM
 msg['To'] = config.EMAIL_TO
 
-part = MIMEBase('application', "octet-stream")
-part.set_payload(open('sorted' + str(yesterday) + '.txt', "rb").read())
+part = MIMEBase('application', 'zip')
+zf = open('sorted.zip', 'rb')
+part.set_payload(zf.read())
+#part.set_payload(open('sorted' + str(yesterday) + '.txt', "rb").read())
 Encoders.encode_base64(part)
 
-part.add_header('Content-Disposition', 'attachment; filename="sorted20150808.txt"')
+part.add_header('Content-Disposition', 'attachment; filename="sorted.zip"')
 
 msg.attach(part)
 
