@@ -122,7 +122,7 @@ for row in csv1:
 #read temp file and write to sorted file    
 csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'wb'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
 csv2_out.writerow(['Call Number', 'Title', 'Author','Barcode','Location'])
-data = csv.reader(open('temp.txt'),delimiter='\t')
+data = csv.reader(open('temp.txt'),delimiter='\t',quoting=csv.QUOTE_NONE)
 
 sortedlist = sorted(data, key=operator.itemgetter(0))
 
