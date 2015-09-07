@@ -231,3 +231,7 @@ server.starttls()
 server.login(config.EMAIL_FROM, config.SMTP_PASS)
 server.sendmail(config.EMAIL_FROM, config.EMAIL_RECIP, msg.as_string())
 server.quit()
+
+#delete the sorted file from this directory
+os.remove('sorted' + str(yesterday) + '.txt')
+os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
