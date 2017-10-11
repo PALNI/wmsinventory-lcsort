@@ -23,7 +23,7 @@ It can be scheduled to run automatically weekly each Monday via crontab, e.g.:
 
 5 1 * * 1 /location/of/ftp.py
 
-replace 'location/of' with the location you've installed this repository, e.g., /var/local/LC-inventory-sort
+replace 'location/of' with the location you've installed this repository, e.g., /var/local/wmsinventory-lcsort
 
 ## Setup
 
