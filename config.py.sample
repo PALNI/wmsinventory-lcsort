@@ -16,3 +16,6 @@ EMAIL_TO = ""
 EMAIL_RECIP = [""]
 EMAIL_SERVER = ""
 SMTP_PASS = ""
+
+#Hardcoded File to Retrieve (for testing)
+testfile = '.Item_Inventories.20171008.txt'

@@ -29,11 +29,11 @@ yesterday = datetime.date.today() - timedelta(days=1)
 #date = datetime.date.today()
 yesterday = yesterday.strftime('%Y%m%d')
 
-#For production, uncomment line below to get yesterday's file
-filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
+#PRODUCTION - uncomment line below in production
+#filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
 
-#For testing, uncomment line below to get specific file
-#filematch = config.symbol + '.Item_Inventories.20150809.txt'
+#TESTING - uncomment line below when testing
+filematch = config.symbol + config.testfile
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -45,10 +45,10 @@ for filename in ftp.nlst(filematch):
 ftp.quit()
 
 #Open the most recent file
-#for production uncomment line below
-mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
-#for testing uncomment line below
-#mostrecent = open(config.symbol + '.Item_Inventories.20150809.txt', 'r')
+#PRODUCTION - uncomment line below in production
+#mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
+#TESTING - uncomment line below when testing
+mostrecent = open(config.symbol + config.testfile, 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -58,6 +58,7 @@ csv_out = csv.writer(open('temp.txt', 'w'), delimiter = '\t', quotechar = '"', q
 
 #define row elements and ignore withdrawn
 for row in csv1:
+  call = location = temploc = author = barcode = status = description = invdate = ''
   call = row[5]
   location = row[2]
   temploc = row[3]
@@ -66,6 +67,7 @@ for row in csv1:
   barcode = row[12]
   status = row[16]
   description = row[8]
+  invdate = row[20]
   if temploc != '---':
     location = temploc
   if description != '---':
@@ -78,7 +80,7 @@ for row in csv1:
       call2 = call.replace('-','v')  
       sortcall = callnumber.normalize(call2)
       if sortcall == None:
-        csv_out.writerow([call,call,title,author,barcode,location])
+        csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
       else:
         if sortcall.find('PT') != -1:
           partsplit = sortcall.split('PT')
@@ -104,31 +106,31 @@ for row in csv1:
                #csv_out.writerow([sortcall,call,title,author,barcode,location])
            #else:
              #csv_out.writerow([sortcall,call,title,author,barcode,location])
-        csv_out.writerow([sortcall,call,title,author,barcode,location])
+        csv_out.writerow([sortcall,call,title,author,barcode,location,status,invdate])
     elif deweymatch.match(call):
-      csv_out.writerow([call,call,title,author,barcode,location])
+      csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
     else:
       accession = re.split('(\d+)', call)
       if len(accession) > 3:
         padded = accession[1].rjust(5,'0')
         padded2 = accession[3].rjust(5,'0')
-        csv_out.writerow([accession[0] + padded + accession[2] + padded2,call,title,author,barcode,location])
+        csv_out.writerow([accession[0] + padded + accession[2] + padded2,call,title,author,barcode,location,status,invdate])
       elif len(accession) > 2:
         padded = accession[1].rjust(5, '0') 
-        csv_out.writerow([accession[0] + padded,call,title,author,barcode,location])
+        csv_out.writerow([accession[0] + padded,call,title,author,barcode,location,status,invdate])
       else:
-        csv_out.writerow([call,call,title,author,barcode,location])
+        csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
 
 #read temp file and write to sorted file    
 csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'wb'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
-csv2_out.writerow(['Call Number', 'Title', 'Author','Barcode','Location'])
+csv2_out.writerow(['Call Number', 'Title', 'Author','Barcode','Location','Status','InventoryDate'])
 data = csv.reader(open('temp.txt'),delimiter='\t',quoting=csv.QUOTE_NONE)
 
 sortedlist = sorted(data, key=operator.itemgetter(0))
 
 for row in sortedlist:
 
-  sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = ''
+  sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = sortedstatus = sortedinvdate = ''
   if len(row) > 5:
     if row[0] is not None:
       sortednormal = row[0]
@@ -153,49 +155,18 @@ for row in sortedlist:
       sortedlocation = row[5]
     else:
       sortedlocation = '' 
+
+    if row[6] is not None:
+      sortedstatus = row[6]
+    else:
+      sortedstatus = ''
+
+    if row[7] is not None:
+      sortedinvdate = row[7]
+    else:
+      sortedinvdate = ''
   
-  elif len(row) > 4:
-    if row[0] is not None:
-      sortednormal = row[0]
-  
-    if row[1] is not None:
-      sortedcall = row[1]
-  
-    if row[2] is not None:
-      sortedtitle = row[2]
- 
-    if row[3] is not None:
-      sortedauthor = row[3]
-    else: 
-      sortedauthor = ''
-
-    if row[4] is not None:
-      sortedbarcode = row[4]
-    else: 
-      sortedbarcode = ''
- 
-  elif len(row) < 2:
-    if row[0] is not None:
-      sortednormal = row[0]
-
-  elif len(row) < 3:
-    if row[0] is not None:
-      sortednormal = row[0]
-    
-    if row[1] is not None:
-      sortedcall = row[1]
-
-  elif len(row) < 4:
-    if row[0] is not None:
-      sortednormal = row[0]
-
-    if row[1] is not None:
-      sortedcall = row[1]
-
-    if row[2] is not None:
-      sortedtitle = row[2]
-
-  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation])
+  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation,sortedstatus,sortedinvdate])
 
 # Remove the temp file
 os.remove('temp.txt')
@@ -234,4 +205,9 @@ server.quit()
 
 #delete the sorted file from this directory
 os.remove('sorted' + str(yesterday) + '.txt')
-os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
+
+#PRODUCTION - uncomment line below in production
+#os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
+
+#TESTING - uncomment line below when testing)
+os.remove(config.symbol + config.testfile)
