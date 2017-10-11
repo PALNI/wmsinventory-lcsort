@@ -1,4 +1,4 @@
-#OCLC WMS Inventory File Call Number Sorting
+# OCLC WMS Inventory File Call Number Sorting
 
 This script is designed to perform the following functions:
 
@@ -16,7 +16,7 @@ It can be scheduled to run automatically weekly each Monday via crontab, e.g.:
 
 replace 'location/of' with the location you've installed this repository, e.g., /var/local/LC-inventory-sort
 
-##Setup
+## Setup
 
 Copy config.py.sample to config.py and fill in all values.
 
