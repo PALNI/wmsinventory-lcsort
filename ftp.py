@@ -30,10 +30,10 @@ yesterday = datetime.date.today() - timedelta(days=1)
 yesterday = yesterday.strftime('%Y%m%d')
 
 #PRODUCTION - uncomment line below in production
-#filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
+filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
 
 #TESTING - uncomment line below when testing
-filematch = config.symbol + config.testfile
+#filematch = config.symbol + config.testfile
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -46,9 +46,9 @@ ftp.quit()
 
 #Open the most recent file
 #PRODUCTION - uncomment line below in production
-#mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
+mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
 #TESTING - uncomment line below when testing
-mostrecent = open(config.symbol + config.testfile, 'r')
+#mostrecent = open(config.symbol + config.testfile, 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -78,7 +78,7 @@ for row in csv1:
   if description != '---':
     call = call + ' ' + description
     call2 = call + ' ' + description   
-  if status != 'WITHDRAWN':
+  if status != '9999':
     lcmatch = re.compile('[A-Z]{1,3}\d')
     deweymatch = re.compile('\d*\.\d*')
     if lcmatch.match(call):
@@ -232,7 +232,7 @@ server.quit()
 os.remove('sorted' + str(yesterday) + '.txt')
 
 #PRODUCTION - uncomment line below in production
-#os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
+os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
 
 #TESTING - uncomment line below when testing)
-os.remove(config.symbol + config.testfile)
+#os.remove(config.symbol + config.testfile)
