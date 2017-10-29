@@ -4,6 +4,7 @@ This script is designed to perform the following functions:
 
 * Fetch the weekly inventory file from an institution's WMS reporting FTP directory
 * Normalize and sort all inventory items by LC call number (Dewey numbers will not be normalized/modified)
+* Remove withdrawn items
 * Output the sorted inventory to a new FTP directory, publish to a web page, and email the sorted inventory to a list of users
 
 The following fields are included in the output file:
@@ -36,3 +37,12 @@ During testing, enter in a filename date in the testfile value in config.py to h
 After testing when ready to move to production, be sure to modify ftp.py to comment out each of the testing lines and uncomment the associated production line.
 
 Search for #testing and #production in the file - there are three sections that need to be changed.
+
+##Additional Fields / Withdrawn Items
+
+The Butler branch of this code includes withdrawn items in output and the addition of the following fields:
+* Holding Location
+* Textual Holdings (Description)
+* Material Format
+* Last Issued Date
+* Item Deletion Date 
