@@ -30,10 +30,10 @@ yesterday = datetime.date.today() - timedelta(days=1)
 yesterday = yesterday.strftime('%Y%m%d')
 
 #PRODUCTION - uncomment line below in production
-filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
+#filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
 
 #TESTING - uncomment line below when testing
-#filematch = config.symbol + config.testfile
+filematch = config.symbol + config.testfile
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -46,9 +46,9 @@ ftp.quit()
 
 #Open the most recent file
 #PRODUCTION - uncomment line below in production
-mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
+#mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
 #TESTING - uncomment line below when testing
-#mostrecent = open(config.symbol + config.testfile, 'r')
+mostrecent = open(config.symbol + config.testfile, 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -58,7 +58,7 @@ csv_out = csv.writer(open('temp.txt', 'w'), delimiter = '\t', quotechar = '"', q
 
 #define row elements and ignore withdrawn
 for row in csv1:
-  call = location = temploc = author = barcode = status = description = invdate = ''
+  call = location = temploc = author = barcode = status = description = invdate = holdloc = matform = oclcnum = last_issued = item_delete = ''
   call = row[5]
   location = row[2]
   temploc = row[3]
@@ -68,6 +68,11 @@ for row in csv1:
   status = row[16]
   description = row[8]
   invdate = row[20]
+  holdloc = row[1]
+  matform = row[9]
+  oclcnum = row[10]
+  last_issued = row[20]
+  item_delete = row[22]
   if temploc != '---':
     location = temploc
   if description != '---':
@@ -80,7 +85,7 @@ for row in csv1:
       call2 = call.replace('-','v')  
       sortcall = callnumber.normalize(call2)
       if sortcall == None:
-        csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
+        csv_out.writerow([call,call,title,author,barcode,location,status,invdate,holdloc,matform,oclcnum,last_issued,item_delete])
       else:
         if sortcall.find('PT') != -1:
           partsplit = sortcall.split('PT')
@@ -92,7 +97,6 @@ for row in csv1:
              sortedsplit = call.split('v.')
              vcallsortnum = sortedsplit[1].rjust(3, '0')
              sortcall = sortcall + ' V' + vcallsortnum
-             #csv_out.writerow([sortcall,call,title,author,barcode,location]) 
            #else if v. and normalized V 
            elif sortcall.find('V') != -1:
              sortedsplit = sortcall.split('V')
@@ -100,37 +104,33 @@ for row in csv1:
              if len(sortedsplit) > 2:
                vcallsortnum2 = sortedsplit[2].rjust(3,'0')
                sortcall = sortedsplit[0] + 'V' + vcallsortnum + 'V' + vcallsortnum2
-               #csv_out.writerow([sortcall,call,title,author,barcode,location])
              else:
                sortcall = sortedsplit[0] + 'V' + vcallsortnum
-               #csv_out.writerow([sortcall,call,title,author,barcode,location])
-           #else:
-             #csv_out.writerow([sortcall,call,title,author,barcode,location])
-        csv_out.writerow([sortcall,call,title,author,barcode,location,status,invdate])
+        csv_out.writerow([sortcall,call,title,author,barcode,location,status,invdate,holdloc,matform,oclcnum,last_issued,item_delete])
     elif deweymatch.match(call):
-      csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
+      csv_out.writerow([call,call,title,author,barcode,location,status,invdate,holdloc,matform,oclcnum,last_issued,item_delete])
     else:
       accession = re.split('(\d+)', call)
       if len(accession) > 3:
         padded = accession[1].rjust(5,'0')
         padded2 = accession[3].rjust(5,'0')
-        csv_out.writerow([accession[0] + padded + accession[2] + padded2,call,title,author,barcode,location,status,invdate])
+        csv_out.writerow([accession[0] + padded + accession[2] + padded2,call,title,author,barcode,location,status,invdate,holdloc,matform,oclcnum,last_issued,item_delete])
       elif len(accession) > 2:
         padded = accession[1].rjust(5, '0') 
-        csv_out.writerow([accession[0] + padded,call,title,author,barcode,location,status,invdate])
+        csv_out.writerow([accession[0] + padded,call,title,author,barcode,location,status,invdate,holdloc,matform,oclcnum,last_issued,item_delete])
       else:
-        csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
+        csv_out.writerow([call,call,title,author,barcode,location,status,invdate,holdloc,matform,oclcnum,last_issued,item_delete])
 
 #read temp file and write to sorted file    
 csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'wb'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
-csv2_out.writerow(['Call Number', 'Title', 'Author','Barcode','Location','Status','InventoryDate'])
+csv2_out.writerow(['Call Number', 'Title', 'Author','Barcode','Location','Status','InventoryDate','HoldLocation','MaterialFormat','OCLC','LastIssued','ItemDelete'])
 data = csv.reader(open('temp.txt'),delimiter='\t',quoting=csv.QUOTE_NONE)
 
 sortedlist = sorted(data, key=operator.itemgetter(0))
 
 for row in sortedlist:
 
-  sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = sortedstatus = sortedinvdate = ''
+  sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = sortedstatus = sortedinvdate = sortedholdloc = sortedmatform = sortedoclc = sortedlast = sorteditem = ''
   if len(row) > 5:
     if row[0] is not None:
       sortednormal = row[0]
@@ -165,8 +165,33 @@ for row in sortedlist:
       sortedinvdate = row[7]
     else:
       sortedinvdate = ''
-  
-  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation,sortedstatus,sortedinvdate])
+    
+    if row[8] is not None:
+      sortedholdloc = row[8]
+    else:
+      sortedholdloc = ''
+
+    if row[9] is not None:
+      sortedmatform = row[9]
+    else:
+      sortedmatform = ''
+
+    if row[10] is not None:
+      sortedoclc = row[10]
+    else:
+      sortedoclc = ''
+
+    if row[11] is not None:
+      sortedlast = row[11]
+    else:
+      sortedlast = ''
+
+    if row[12] is not None:
+      sorteditem = row[12]
+    else:
+      sorteditem = ''
+
+  csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation,sortedstatus,sortedinvdate,sortedholdloc,sortedmatform,sortedoclc,sortedlast,sorteditem])
 
 # Remove the temp file
 os.remove('temp.txt')
@@ -207,7 +232,7 @@ server.quit()
 os.remove('sorted' + str(yesterday) + '.txt')
 
 #PRODUCTION - uncomment line below in production
-os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
+#os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
 
 #TESTING - uncomment line below when testing)
-#os.remove(config.symbol + config.testfile)
+os.remove(config.symbol + config.testfile)
