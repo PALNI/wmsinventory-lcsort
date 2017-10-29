@@ -132,63 +132,69 @@ for row in sortedlist:
 
   sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = sortedstatus = sortedinvdate = sortedholdloc = sortedmatform = sortedoclc = sortedlast = sorteditem = ''
   if len(row) > 5:
-    if row[0] is not None:
+    try:
       sortednormal = row[0]
+    except IndexError:
+      sortednormal = ''
 
-    if row[1] is not None:
+    try:
       sortedcall = row[1]
+    except IndexError:
+      sortedcall = ''
 
-    if row[2] is not None:
+    try:
       sortedtitle = row[2]
+    except IndexError:
+      sortedtitle = ''
 
-    if row[3] is not None:
+    try:
       sortedauthor = row[3]
-    else:
+    except IndexError:
       sortedauthor = ''
 
-    if row[4] is not None:
+    try:
       sortedbarcode = row[4]
-    else:
+    except IndexError:
       sortedbarcode = ''
 
-    if row[5] is not None:
+    try:
       sortedlocation = row[5]
-    else:
+    except IndexError:
       sortedlocation = '' 
 
-    if row[6] is not None:
+    try:
       sortedstatus = row[6]
-    else:
+    except IndexError:
       sortedstatus = ''
 
-    if row[7] is not None:
+    try:
       sortedinvdate = row[7]
-    else:
+    except IndexError:
       sortedinvdate = ''
     
-    if row[8] is not None:
+    try:
       sortedholdloc = row[8]
-    else:
+    except IndexError:
       sortedholdloc = ''
 
-    if row[9] is not None:
+    try:
       sortedmatform = row[9]
-    else:
+    except IndexError:
       sortedmatform = ''
 
-    if row[10] is not None:
+    try:
       sortedoclc = row[10]
-    else:
+    except IndexError:
       sortedoclc = ''
 
-    if row[11] is not None:
+    try:
       sortedlast = row[11]
-    else:
+    except IndexError:
       sortedlast = ''
 
-    if row[12] is not None:
+    try:
       sorteditem = row[12]
-    else:
+    except IndexError:
       sorteditem = ''
 
   csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation,sortedstatus,sortedinvdate,sortedholdloc,sortedmatform,sortedoclc,sortedlast,sorteditem])
