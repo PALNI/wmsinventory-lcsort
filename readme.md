@@ -38,7 +38,7 @@ After testing when ready to move to production, be sure to modify ftp.py to comm
 
 Search for #testing and #production in the file - there are three sections that need to be changed.
 
-##Additional Fields / Withdrawn Items
+## Additional Fields / Withdrawn Items
 
 The Butler branch of this code includes withdrawn items in output and the addition of the following fields:
 * Holding Location
