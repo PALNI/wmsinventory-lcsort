@@ -132,38 +132,44 @@ for row in sortedlist:
 
   sortednormal = sortedcall = sortedtitle = sortedauthor = sortedbarcode = sortedlocation = sortedstatus = sortedinvdate = ''
   if len(row) > 5:
-    if row[0] is not None:
+    try:
       sortednormal = row[0]
+    except IndexError:
+      sortednormal = ''
 
-    if row[1] is not None:
+    try:
       sortedcall = row[1]
-
-    if row[2] is not None:
+    except IndexError:
+      sortedcall = ''
+    
+    try:
       sortedtitle = row[2]
+    except IndexError:
+      sortedtitle = ''
 
-    if row[3] is not None:
+    try:
       sortedauthor = row[3]
-    else:
+    except IndexError:
       sortedauthor = ''
 
-    if row[4] is not None:
+    try:
       sortedbarcode = row[4]
-    else:
+    except IndexError:
       sortedbarcode = ''
 
-    if row[5] is not None:
+    try:
       sortedlocation = row[5]
-    else:
+    except IndexError:
       sortedlocation = '' 
 
-    if row[6] is not None:
+    try:
       sortedstatus = row[6]
-    else:
+    except IndexError:
       sortedstatus = ''
 
-    if row[7] is not None:
+    try:
       sortedinvdate = row[7]
-    else:
+    except IndexError:
       sortedinvdate = ''
   
   csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation,sortedstatus,sortedinvdate])
