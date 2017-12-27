@@ -29,6 +29,9 @@ yesterday = datetime.date.today() - timedelta(days=1)
 #date = datetime.date.today()
 yesterday = yesterday.strftime('%Y%m%d')
 
+#permanent yesterday for testing (comment out in production)
+#yesterday = '20171224'
+
 #PRODUCTION - uncomment line below in production
 filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
 
