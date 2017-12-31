@@ -32,11 +32,8 @@ yesterday = yesterday.strftime('%Y%m%d')
 #permanent yesterday for testing (comment out in production)
 #yesterday = '20171224'
 
-#PRODUCTION - uncomment line below in production
+#Define yesterday's filename
 filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
-
-#TESTING - uncomment line below when testing
-#filematch = config.symbol + config.testfile
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -48,10 +45,7 @@ for filename in ftp.nlst(filematch):
 ftp.quit()
 
 #Open the most recent file
-#PRODUCTION - uncomment line below in production
 mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
-#TESTING - uncomment line below when testing
-#mostrecent = open(config.symbol + config.testfile, 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -215,8 +209,5 @@ server.quit()
 #delete the sorted file from this directory
 os.remove('sorted' + str(yesterday) + '.txt')
 
-#PRODUCTION - uncomment line below in production
+#remove the original file from this directory
 os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
-
-#TESTING - uncomment line below when testing)
-#os.remove(config.symbol + config.testfile)
