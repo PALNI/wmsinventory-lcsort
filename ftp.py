@@ -30,10 +30,10 @@ yesterday = datetime.date.today() - timedelta(days=1)
 yesterday = yesterday.strftime('%Y%m%d')
 
 #permanent yesterday for testing (comment out in production)
-#yesterday = '20171224'
+yesterday = '20180708'
 
 #Define yesterday's filename
-filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
+filematch = config.symbol + '.Circulation_Item_Inventories.' + yesterday + '.txt'
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -45,7 +45,7 @@ for filename in ftp.nlst(filematch):
 ftp.quit()
 
 #Open the most recent file
-mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
+mostrecent = open(config.symbol + '.Circulation_Item_Inventories.' + str(yesterday) + '.txt', 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -59,15 +59,15 @@ for row in csv1:
   call = row[5]
   location = row[2]
   temploc = row[3]
-  title = row[7]
-  author = row[6]
-  barcode = row[12]
-  status = row[16]
-  description = row[8]
-  invdate = row[20]
-  if temploc != '---':
+  title = row[8]
+  author = row[7]
+  barcode = row[14]
+  status = row[18]
+  description = row[6]
+  invdate = row[25]
+  if temploc != '':
     location = temploc
-  if description != '---':
+  if description != '':
     call = call + ' ' + description
     call2 = call + ' ' + description   
   if status != 'WITHDRAWN':
@@ -210,4 +210,4 @@ server.quit()
 os.remove('sorted' + str(yesterday) + '.txt')
 
 #remove the original file from this directory
-os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
+os.remove(config.symbol + '.Circulation_Item_Inventories.' + str(yesterday) + '.txt')
