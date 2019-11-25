@@ -29,8 +29,11 @@ yesterday = datetime.date.today() - timedelta(days=1)
 #date = datetime.date.today()
 yesterday = yesterday.strftime('%Y%m%d')
 
+#permanent yesterday for testing (comment out in production)
+#yesterday = '20191006'
+
 #Define yesterday's filename
-filematch = config.symbol + '.Item_Inventories.' + yesterday + '.txt'
+filematch = config.symbol + '.Circulation_Item_Inventories.' + yesterday + '.txt'
 
 #Retrieve the files
 for filename in ftp.nlst(filematch):
@@ -42,7 +45,7 @@ for filename in ftp.nlst(filematch):
 ftp.quit()
 
 #Open the most recent file
-mostrecent = open(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt', 'r')
+mostrecent = open(config.symbol + '.Circulation_Item_Inventories.' + str(yesterday) + '.txt', 'r')
 
 #read the inventory file  
 csv1 = csv.reader(mostrecent, delimiter='|', quoting=csv.QUOTE_NONE)
@@ -53,23 +56,65 @@ csv_out = csv.writer(open('temp.txt', 'w'), delimiter = '\t', quotechar = '"', q
 #define row elements and ignore withdrawn
 for row in csv1:
   call = location = temploc = author = barcode = status = description = invdate = holdloc = matform = oclcnum = last_issued = item_delete = ''
-  call = row[5]
-  location = row[2]
-  temploc = row[3]
-  title = row[7]
-  author = row[6]
-  barcode = row[12]
-  status = row[16]
-  description = row[8]
-  invdate = row[21]
-  holdloc = row[1]
-  matform = row[9]
-  oclcnum = row[10]
-  last_issued = row[20]
-  item_delete = row[22]
-  if temploc != '---':
+  try:
+    call = row[5]
+  except IndexError:
+    call = ''
+  try:
+    location = row[2]
+  except IndexError:
+    location = ''
+  try:
+    temploc = row[3]
+  except IndexError:
+    temploc = ''
+  try:
+    title = row[8]
+  except IndexError:
+    title = ''
+  try:
+    author = row[7]
+  except IndexError:
+    author = ''
+  try:
+    status = row[18]
+  except IndexError:
+    status = ''
+  try:
+    description = row[6]
+  except IndexError:
+    description = ''
+  try:
+    invdate = row[25]
+  except IndexError:
+    invdate = ''
+  try:  
+    holdloc = row[1]
+  except IndexError:
+    holdloc = ''
+  try:
+    matform = row[10]
+  except IndexError:
+    matform = ''
+  try:
+    oclcnum = row[11]
+  except IndexError:
+    oclcnum = ''
+  try:
+    last_issued = row[24]
+  except IndexError:
+    last_issued = ''
+  try:
+    barcode = row[14]
+  except IndexError:
+    barcode = ''
+  try:
+    item_delete = row[26]
+  except IndexError:
+    item_delete = ''
+  if temploc != '':
     location = temploc
-  if description != '---':
+  if description != '':
     call = call + ' ' + description
     call2 = call + ' ' + description   
   if status != '9999':
@@ -232,4 +277,4 @@ server.quit()
 os.remove('sorted' + str(yesterday) + '.txt')
 
 #remove the original file from this directory
-os.remove(config.symbol + '.Item_Inventories.' + str(yesterday) + '.txt')
+os.remove(config.symbol + '.Circulation_Item_Inventories.' + str(yesterday) + '.txt')
