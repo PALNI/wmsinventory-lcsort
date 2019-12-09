@@ -2,7 +2,6 @@
 import os
 import ftplib
 import sys
-#import callnumber
 import csv
 import re
 import operator
@@ -11,10 +10,6 @@ import datetime
 from datetime import timedelta
 import zipfile
 import smtplib
-#from email.MIMEMultipart import MIMEMultipart
-#from email.MIMEBase import MIMEBase
-#from email.mime.text import MIMEText
-#from email import Encoders
 from email import mime
 from email.mime.multipart import MIMEMultipart
 import pycallnumber as pycn
