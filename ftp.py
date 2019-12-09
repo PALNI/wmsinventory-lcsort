@@ -11,10 +11,12 @@ import datetime
 from datetime import timedelta
 import zipfile
 import smtplib
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEBase import MIMEBase
-from email.mime.text import MIMEText
-from email import Encoders
+#from email.MIMEMultipart import MIMEMultipart
+#from email.MIMEBase import MIMEBase
+#from email.mime.text import MIMEText
+#from email import Encoders
+from email import mime
+from email.mime.multipart import MIMEMultipart
 import pycallnumber as pycn
 
 #get configuration file with FTP credentials
