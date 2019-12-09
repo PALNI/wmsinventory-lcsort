@@ -12,6 +12,9 @@ import zipfile
 import smtplib
 from email import mime
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
 import pycallnumber as pycn
 
 #get configuration file with FTP credentials
@@ -74,6 +77,7 @@ for row in csv1:
     if lcmatch.match(call):
       call2 = call.replace('-','v')
       sortcall = pycn.callnumber(call2)
+      sortcall = str(sortcall)
       if sortcall == None:
         csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
       else:
@@ -117,7 +121,7 @@ for row in csv1:
         csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
 
 #read temp file and write to sorted file    
-csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'wb'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+csv2_out = csv.writer(open('sorted' + str(yesterday) + '.txt', 'w'), delimiter = '\t', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
 csv2_out.writerow(['Call Number', 'Title', 'Author','Barcode','Location','Status','InventoryDate'])
 data = csv.reader(open('temp.txt'),delimiter='\t',quoting=csv.QUOTE_NONE)
 
@@ -191,7 +195,7 @@ part = MIMEBase('application', 'zip')
 zf = open('sorted.zip', 'rb')
 part.set_payload(zf.read())
 #part.set_payload(open('sorted' + str(yesterday) + '.txt', "rb").read())
-Encoders.encode_base64(part)
+encoders.encode_base64(part)
 
 part.add_header('Content-Disposition', 'attachment; filename="sorted.zip"')
 
