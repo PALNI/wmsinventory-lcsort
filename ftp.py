@@ -2,7 +2,7 @@
 import os
 import ftplib
 import sys
-import callnumber
+#import callnumber
 import csv
 import re
 import operator
@@ -76,7 +76,7 @@ for row in csv1:
     deweymatch = re.compile('\d*\.\d*')
     if lcmatch.match(call):
       call2 = call.replace('-','v')
-      sortcall = callnumber.normalize(call2)
+      sortcall = pycn.callnumber(call2)
       if sortcall == None:
         csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
       else:
