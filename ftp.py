@@ -15,6 +15,7 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEBase import MIMEBase
 from email.mime.text import MIMEText
 from email import Encoders
+import pycallnumber as pycn
 
 #get configuration file with FTP credentials
 import config
@@ -30,7 +31,7 @@ yesterday = datetime.date.today() - timedelta(days=1)
 yesterday = yesterday.strftime('%Y%m%d')
 
 #permanent yesterday for testing (comment out in production)
-yesterday = '20180708'
+#yesterday = '20180708'
 
 #Define yesterday's filename
 filematch = config.symbol + '.Circulation_Item_Inventories.' + yesterday + '.txt'
@@ -38,7 +39,7 @@ filematch = config.symbol + '.Circulation_Item_Inventories.' + yesterday + '.txt
 #Retrieve the files
 for filename in ftp.nlst(filematch):
   fhandle = open(filename, 'wb')
-  print 'Getting ' + filename
+  print('Getting ' + filename)
   ftp.retrbinary('RETR ' + filename, fhandle.write)
   fhandle.close()
 #Close the FTP Connection
@@ -69,12 +70,12 @@ for row in csv1:
     location = temploc
   if description != '':
     call = call + ' ' + description
-    call2 = call + ' ' + description   
+    call2 = call + ' ' + description
   if status != 'WITHDRAWN':
     lcmatch = re.compile('[A-Z]{1,3}\d')
     deweymatch = re.compile('\d*\.\d*')
     if lcmatch.match(call):
-      call2 = call.replace('-','v')  
+      call2 = call.replace('-','v')
       sortcall = callnumber.normalize(call2)
       if sortcall == None:
         csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
@@ -113,7 +114,7 @@ for row in csv1:
         padded2 = accession[3].rjust(5,'0')
         csv_out.writerow([accession[0] + padded + accession[2] + padded2,call,title,author,barcode,location,status,invdate])
       elif len(accession) > 2:
-        padded = accession[1].rjust(5, '0') 
+        padded = accession[1].rjust(5, '0')
         csv_out.writerow([accession[0] + padded,call,title,author,barcode,location,status,invdate])
       else:
         csv_out.writerow([call,call,title,author,barcode,location,status,invdate])
@@ -138,7 +139,7 @@ for row in sortedlist:
       sortedcall = row[1]
     except IndexError:
       sortedcall = ''
-    
+      
     try:
       sortedtitle = row[2]
     except IndexError:
@@ -157,7 +158,7 @@ for row in sortedlist:
     try:
       sortedlocation = row[5]
     except IndexError:
-      sortedlocation = '' 
+      sortedlocation = ''
 
     try:
       sortedstatus = row[6]
@@ -168,7 +169,7 @@ for row in sortedlist:
       sortedinvdate = row[7]
     except IndexError:
       sortedinvdate = ''
-  
+
   csv2_out.writerow([sortedcall,sortedtitle,sortedauthor,sortedbarcode,sortedlocation,sortedstatus,sortedinvdate])
 
 # Remove the temp file
